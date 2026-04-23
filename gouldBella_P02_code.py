@@ -16,10 +16,24 @@ class Duplicate_To_Curve():
     instance = False
     duplicate_num = 3
 
+    def pick_duplicate_or_instance(self):
+        if self.instance is True:
+            self.instance_to_curve()
+        else:
+            self.duplicate_to_curve()
+
+    def instance_to_curve(self):
+        for instance in range(1, self.duplicate_num+1):
+            new_mesh = cmds.instance(self.mesh)[0]
+            pos = self.get_curve_point(instance)
+            cmds.select(new_mesh)
+            cmds.move(pos[0], pos[1], pos[2])
+        
     def duplicate_to_curve(self):
         for duplicate in range(1, self.duplicate_num+1):
+            new_mesh = cmds.duplicate(self.mesh)[0]
             pos = self.get_curve_point(duplicate)
-            cmds.select(duplicate)
+            cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
 
     def calculate_curve_divider(self):
