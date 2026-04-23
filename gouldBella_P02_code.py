@@ -16,20 +16,23 @@ class Duplicate_To_Curve():
     instance = False
     duplicate_num = 3
 
-    #def duplicate_to_curve(self):
-    # for duplicate in range (1, duplicate_num+1):
-    # pos = get_curve_point(duplicate)
-    # cmds.select(duplicate)
-    # cmds.move(pos[0], pos[1], pos[2])
+    def duplicate_to_curve(self):
+        for duplicate in range(1, self.duplicate_num+1):
+            pos = self.get_curve_point(duplicate)
+            cmds.select(duplicate)
+            cmds.move(pos[0], pos[1], pos[2])
 
-### def calculate_curve_divider(self):
-# curve_divider = 1.0/(duplicate_num+1)
-# return curve_divider
+    def calculate_curve_divider(self):
+        curve_divider = 1.0/(self.duplicate_num+1)
+        return curve_divider
 
-# def get_curve_point(self, duplicate):
-# curve_divider = calculate_curve_divider()
-# point_location = cmds.pointOnCurve(-pr (curve_divider*duplicate) -p curve)
-# return point_location###
+    def get_curve_point(self, duplicate):
+        curve_divider = self.calculate_curve_divider()
+        point_location = cmds.pointOnCurve(self.curve,
+                                           parameter=(curve_divider*duplicate),
+                                           position=True)
+        return point_location
+
 
 class Duplicate_Win(QtWidgets.QDialog):
 
