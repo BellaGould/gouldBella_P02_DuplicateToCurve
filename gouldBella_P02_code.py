@@ -9,38 +9,49 @@ def get_maya_main_win():
     main_window = omui.MQtUtil.mainWindow()
     return wrapInstance(int(main_window), QtWidgets.QWidget)
 
-# def class duplicate_to_curve():
-# this will be the object that takes the mesh and duplicates it
-# along the specified curve.
-
-# so maybe I could use a MASH network?
-
-# curve = curve1
-# mesh = pSphere1
-
-# select(-r "pSphere1")
-# cmds.MASHnewNetwork("MASH#")
-# setAttr("MASH1_Distribute.amplitudeX"=0)
-
-# possible helpful documentation
-# sweep mesh creator node: https://help.autodesk.com/view/MAYAUL/2022/ENU/?guid=GUID-28464AF4-6CB8-498A-93CB-ED70F971B478
-# sweep mesh options: https://help.autodesk.com/view/MAYAUL/2022/ENU/?guid=GUID-515863CF-D31E-4D70-ADAB-0E36F342EB37
-# custom sweep mesh: https://help.autodesk.com/view/MAYAUL/2022/ENU/?guid=GUID-BEECAB77-5F83-4BCF-9E6D-10EAC13514A8
-
 
 class Duplicate_To_Curve():
     curve = "curve1"
     mesh = "pSphere1"
     instance = False
+    duplicate_num = 3
 
-class Duplicate_To_Curve_Window():
+    #def duplicate_to_curve(self):
+    # for duplicate in range (1, duplicate_num+1):
+    # pos = get_curve_point(duplicate)
+    # cmds.select(duplicate)
+    # cmds.move(pos[0], pos[1], pos[2])
 
-# def create_mash_network():
-# mashNetwork = mapi.Network()
-# mashNetwork.createNetwork(name="duplicate_to_curve")
-# node = mashNetwork.addNode("MASH_curve")
-# cmds.setAttr(mashNetwork.distribute + ".arrangement", 4)
-# cmds.connectAttr(mesh.outMesh, mashNetwork.distribute + ".inputMesh" )
+### def calculate_curve_divider(self):
+# curve_divider = 1.0/(duplicate_num+1)
+# return curve_divider
+
+# def get_curve_point(self, duplicate):
+# curve_divider = calculate_curve_divider()
+# point_location = cmds.pointOnCurve(-pr (curve_divider*duplicate) -p curve)
+# return point_location###
+
+class Duplicate_Win(QtWidgets.QDialog):
+
+    def __init__(self):
+        super(Duplicate_Win, self).__init__(parent=get_maya_main_win())
+        self.duplicate = Duplicate_To_Curve()
+        self.setWindowTitle("Duplicate to Curve")
+        self.resize(500, 500)
+        self._define_widgets()
+        self._layout_ui()
+        self._connect_signals()
+
+    def _define_widgets():
+        pass
+
+    def _layout_ui():
+        pass
+
+    def _connect_signals():
+        pass
+
+
 
 ### notes from class 4/20/2026: 
 # look at Maya docs curve commands for inspo.
