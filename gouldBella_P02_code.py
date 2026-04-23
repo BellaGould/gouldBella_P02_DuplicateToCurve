@@ -1,4 +1,3 @@
-import MASH.api as mapi
 import maya.cmds as cmds
 from PySide6 import QtWidgets, QtCore
 import maya.OpenMayaUI as omui
@@ -28,6 +27,7 @@ class Duplicate_To_Curve():
             pos = self.get_curve_point(instance)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
+            self.freeze_transforms(new_mesh)
         
     def duplicate_to_curve(self):
         for duplicate in range(1, self.duplicate_num+1):
@@ -46,6 +46,10 @@ class Duplicate_To_Curve():
                                            parameter=(curve_divider*duplicate),
                                            position=True)
         return point_location
+    
+    def freeze_transforms(self, new_mesh):
+        cmds.makeIdentity(new_mesh, apply=True, translate=True, rotate=True,
+                          scale=True, normal=False, preserveNormals=True)
 
 
 class Duplicate_Win(QtWidgets.QDialog):
