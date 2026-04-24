@@ -63,26 +63,52 @@ class Copy_Win(QtWidgets.QDialog):
         self._layout_ui()
         self._connect_signals()
 
-    def _define_widgets():
-        # self.mesh_layout = QtWidgets.QHBoxLayout()
-        # mesh label and input box
-        # curve layout, label, input box
-        # duplicate or instance layout, label and dropdown
+    def _define_widgets(self):
         # number of copies layout, label, spin box
         # copy button
         # cancel button
-        pass
+        self.mesh_layout = QtWidgets.QHBoxLayout()
+        self.mesh_lbl = QtWidgets.QLabel("Mesh name:")
+        self.mesh_layout.addWidget(self.mesh_lbl)
+        self.mesh_input = QtWidgets.QLineEdit()
+        self.mesh_input.setPlaceholderText("pSphere1")
+        self.mesh_layout.addWidget(self.mesh_input)
 
-    def _layout_ui():
+        self.curve_layout = QtWidgets.QHBoxLayout()
+        self.curve_lbl = QtWidgets.QLabel("Curve name:")
+        self.curve_layout.addWidget(self.curve_lbl)
+        self.curve_input = QtWidgets.QLineEdit()
+        self.curve_input.setPlaceholderText("curve1")
+        self.curve_layout.addWidget(self.curve_input)
+
+        self.dup_inst_layout = QtWidgets.QHBoxLayout()
+        self.dup_inst_lbl = QtWidgets.QLabel("Duplicate or instance?")
+        self.dup_inst_layout.addWidget(self.dup_inst_lbl)
+        self.dup_inst_cmbx = QtWidgets.QComboBox()
+        self.dup_inst_cmbx.addItem("Duplicate")
+        self.dup_inst_cmbx.addItem("Instance")
+        self.dup_inst_layout.addWidget(self.dup_inst_cmbx)
+
+        self.copy_num_layout = QtWidgets.QHBoxLayout()
+        self.copy_num_lbl = QtWidgets.QLabel("# of copies:")
+        self.copy_num_layout.addWidget(self.copy_num_lbl)
+        self.copy_num_spnbx = QtWidgets.QSpinBox()
+        self.copy_num_spnbx.setMinimum(1)
+        self.copy_num_layout.addWidget(self.copy_num_spnbx)
+
+    def _layout_ui(self):
         # self.main_layout = QtWidgets.QVBoxLayout()
         # self.main_layout.addLayout(x all layouts)
         # self.main_layout.addWidget(x all widgets)
         pass
 
-    def _connect_signals():
+    def _connect_signals(self):
         # self.cancel_btn.clicked.connect(self.close)
         # self.copy_btn.clicked.connect(self.copy_to_curve)
         # connect all other values with their widgets
+        pass
+
+    def copy_to_curve(self):
         pass
 
 
