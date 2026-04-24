@@ -9,11 +9,11 @@ def get_maya_main_win():
     return wrapInstance(int(main_window), QtWidgets.QWidget)
 
 
-class Duplicate_To_Curve():
+class Copy_To_Curve():
     curve = "curve1"
     mesh = "pSphere1"
     instance = False
-    duplicate_num = 3
+    copy_num = 3
 
     def pick_duplicate_or_instance(self):
         if self.instance is True:
@@ -22,7 +22,7 @@ class Duplicate_To_Curve():
             self.duplicate_to_curve()
 
     def instance_to_curve(self):
-        for instance in range(1, self.duplicate_num+1):
+        for instance in range(1, self.copy_num+1):
             new_mesh = cmds.instance(self.mesh)[0]
             pos = self.get_curve_point(instance)
             cmds.select(new_mesh)
@@ -30,14 +30,14 @@ class Duplicate_To_Curve():
             self.freeze_transforms(new_mesh)
         
     def duplicate_to_curve(self):
-        for duplicate in range(1, self.duplicate_num+1):
+        for duplicate in range(1, self.copy_num+1):
             new_mesh = cmds.duplicate(self.mesh)[0]
             pos = self.get_curve_point(duplicate)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
 
     def calculate_curve_divider(self):
-        curve_divider = 1.0/(self.duplicate_num+1)
+        curve_divider = 1.0/(self.copy_num+1)
         return curve_divider
 
     def get_curve_point(self, duplicate):
@@ -52,24 +52,37 @@ class Duplicate_To_Curve():
                           scale=True, normal=False, preserveNormals=True)
 
 
-class Duplicate_Win(QtWidgets.QDialog):
+class Copy_Win(QtWidgets.QDialog):
 
     def __init__(self):
-        super(Duplicate_Win, self).__init__(parent=get_maya_main_win())
-        self.duplicate = Duplicate_To_Curve()
-        self.setWindowTitle("Duplicate to Curve")
+        super(Copy_Win, self).__init__(parent=get_maya_main_win())
+        self.copy = Copy_To_Curve()
+        self.setWindowTitle("Copy to Curve")
         self.resize(500, 500)
         self._define_widgets()
         self._layout_ui()
         self._connect_signals()
 
     def _define_widgets():
+        # self.mesh_layout = QtWidgets.QHBoxLayout()
+        # mesh label and input box
+        # curve layout, label, input box
+        # duplicate or instance layout, label and dropdown
+        # number of copies layout, label, spin box
+        # copy button
+        # cancel button
         pass
 
     def _layout_ui():
+        # self.main_layout = QtWidgets.QVBoxLayout()
+        # self.main_layout.addLayout(x all layouts)
+        # self.main_layout.addWidget(x all widgets)
         pass
 
     def _connect_signals():
+        # self.cancel_btn.clicked.connect(self.close)
+        # self.copy_btn.clicked.connect(self.copy_to_curve)
+        # connect all other values with their widgets
         pass
 
 
