@@ -64,9 +64,6 @@ class Copy_Win(QtWidgets.QDialog):
         self._connect_signals()
 
     def _define_widgets(self):
-        # number of copies layout, label, spin box
-        # copy button
-        # cancel button
         self.mesh_layout = QtWidgets.QHBoxLayout()
         self.mesh_lbl = QtWidgets.QLabel("Mesh name:")
         self.mesh_layout.addWidget(self.mesh_lbl)
@@ -95,12 +92,18 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy_num_spnbx = QtWidgets.QSpinBox()
         self.copy_num_spnbx.setMinimum(1)
         self.copy_num_layout.addWidget(self.copy_num_spnbx)
+        
+        self.copy_btn = QtWidgets.QPushButton("Copy to curve")
+        self.cancel_btn = QtWidgets.QPushButton("Cancel")
 
     def _layout_ui(self):
-        # self.main_layout = QtWidgets.QVBoxLayout()
-        # self.main_layout.addLayout(x all layouts)
-        # self.main_layout.addWidget(x all widgets)
-        pass
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.addLayout(self.mesh_layout)
+        self.main_layout.addLayout(self.curve_layout)
+        self.main_layout.addLayout(self.dup_inst_layout)
+        self.main_layout.addLayout(self.copy_num_layout)
+        self.main_layout.addWidget(self.copy_btn)
+        self.main_layout.addWidget(self.cancel_btn)
 
     def _connect_signals(self):
         # self.cancel_btn.clicked.connect(self.close)
