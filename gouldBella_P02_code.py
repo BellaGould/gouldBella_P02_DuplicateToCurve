@@ -15,7 +15,7 @@ class Copy_To_Curve():
     will_instance = False
     copy_num = 3
 
-    def pick_duplicate_or_instance(self):
+    def copy_to_curve(self):
         if self.will_instance is True:
             self.instance_to_curve()
         else:
@@ -120,12 +120,13 @@ class Copy_Win(QtWidgets.QDialog):
     def copy_to_curve(self):
         self.copy.mesh_name = self.mesh_input.text()
         self.copy.curve_name = self.curve_input.text()
-        self.copy.will_instance = self.duplicate_or_instance()
-        pass
+        self.copy.will_instance = self._duplicate_or_instance()
+        self.copy.copy_num = self.copy_num_spnbx.value()
+        self.copy.copy_to_curve()
 
 
 
-### notes from class 4/20/2026: 
+### notes from class 4/20/2026:
 # look at Maya docs curve commands for inspo.
 # Maya API is a plugin, so possible but not optimal.
 # Return to this^ solution if you can't figure out anything else.
