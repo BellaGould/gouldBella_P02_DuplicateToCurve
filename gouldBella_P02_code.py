@@ -10,20 +10,20 @@ def get_maya_main_win():
 
 
 class Copy_To_Curve():
-    curve = "curve1"
-    mesh = "pSphere1"
-    instance = False
+    curve_name = "curve1"
+    mesh_name = "pSphere1"
+    will_instance = False
     copy_num = 3
 
     def pick_duplicate_or_instance(self):
-        if self.instance is True:
+        if self.will_instance is True:
             self.instance_to_curve()
         else:
             self.duplicate_to_curve()
 
     def instance_to_curve(self):
         for instance in range(1, self.copy_num+1):
-            new_mesh = cmds.instance(self.mesh)[0]
+            new_mesh = cmds.instance(self.mesh_name)[0]
             pos = self.get_curve_point(instance)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
@@ -31,7 +31,7 @@ class Copy_To_Curve():
         
     def duplicate_to_curve(self):
         for duplicate in range(1, self.copy_num+1):
-            new_mesh = cmds.duplicate(self.mesh)[0]
+            new_mesh = cmds.duplicate(self.mesh_name)[0]
             pos = self.get_curve_point(duplicate)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
@@ -42,7 +42,7 @@ class Copy_To_Curve():
 
     def get_curve_point(self, duplicate):
         curve_divider = self.calculate_curve_divider()
-        point_location = cmds.pointOnCurve(self.curve,
+        point_location = cmds.pointOnCurve(self.curve_name,
                                            parameter=(curve_divider*duplicate),
                                            position=True)
         return point_location
@@ -106,12 +106,21 @@ class Copy_Win(QtWidgets.QDialog):
         self.main_layout.addWidget(self.cancel_btn)
 
     def _connect_signals(self):
-        # self.cancel_btn.clicked.connect(self.close)
-        # self.copy_btn.clicked.connect(self.copy_to_curve)
+        self.cancel_btn.clicked.connect(self.close)
+        self.copy_btn.clicked.connect(self.copy_to_curve)
         # connect all other values with their widgets
-        pass
+
+    def _duplicate_or_instance(self):
+        text = self.dup_inst_cmbx.currentText()
+        if text == "Duplicate":
+            return False
+        else:
+            return True
 
     def copy_to_curve(self):
+        self.copy.mesh_name = self.mesh_input.text()
+        self.copy.curve_name = self.curve_input.text()
+        self.copy.will_instance = self.duplicate_or_instance()
         pass
 
 
