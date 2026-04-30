@@ -2,6 +2,7 @@ import maya.cmds as cmds
 from PySide6 import QtWidgets, QtCore
 import maya.OpenMayaUI as omui
 from shiboken6 import wrapInstance
+import random
 
 
 def get_maya_main_win():
@@ -11,11 +12,15 @@ def get_maya_main_win():
 
 class Copy_To_Curve():
     curve_name = "curve1"
-    mesh_name = "pSphere1"
+    mesh_name = "pCone1"
     will_instance = False
     copy_num = 3
     use_copy_num = False
     spacing = 15.0
+    rotation = "Fixed"
+    user_x = 90.0
+    user_y = 90.0
+    user_z = 80.0
 
     # now we need to figure out the rotation.
 
@@ -33,7 +38,10 @@ class Copy_To_Curve():
             pos = self.get_curve_point(instance)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
-            cmds.rotate()
+            if self.rotation == "Unchanged":
+                pass
+            else:
+                self.rotate_copy(instance)
 
     def duplicate_to_curve(self):
         for duplicate in range(1, int(self.copy_num)+1):
@@ -41,18 +49,42 @@ class Copy_To_Curve():
             pos = self.get_curve_point(duplicate)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
+            if self.rotation == "Unchanged":
+                pass
+            else:
+                self.rotate_copy(duplicate)
+
+    def rotate_copy(self, copy):
+        if self.rotation == "Follow Curve":
+            rotate_vector = self.get_point_rotation(copy)
+        elif self.rotation == "Fixed":
+            rotate_vector = [self.user_x, self.user_y, self.user_z]
+        else:
+            x = float(random.randrange(0, 361))
+            y = float(random.randrange(0, 361))
+            z = float(random.randrange(0, 361))
+            rotate_vector = [x, y, z]
+        cmds.rotate(rotate_vector[0], rotate_vector[1], rotate_vector[2])
 
     def calculate_curve_divider(self):
         curve_divider = 1.0/(float(self.copy_num)+1.0)
         return curve_divider
 
-    def get_curve_point(self, duplicate):
+    def get_curve_point(self, copy):
         curve_divider = self.calculate_curve_divider()
         point_location = cmds.pointOnCurve(self.curve_name,
-                                           parameter=(curve_divider*duplicate),
+                                           parameter=(curve_divider*copy),
                                            position=True,
                                            turnOnPercentage=True)
         return point_location
+
+    def get_point_rotation(self, copy):
+        curve_divider = self.calculate_curve_divider()
+        point_rotation = cmds.pointOnCurve(self.curve_name,
+                                           parameter=(curve_divider*copy),
+                                           tangent=True,
+                                           turnOnPercentage=True)
+        return point_rotation
 
     def freeze_transforms(self, new_mesh):
         cmds.makeIdentity(new_mesh, apply=True, translate=True, rotate=True,
@@ -102,9 +134,25 @@ class Copy_Win(QtWidgets.QDialog):
         self.rotate_lbl = QtWidgets.QLabel("Rotation settings:")
         self.rotate_layout.addWidget(self.rotate_lbl)
         self.rotate_cmbx = QtWidgets.QComboBox()
-        self.rotate_cmbx.addItem("Do not change")
+        self.rotate_cmbx.addItem("Unchanged")
         self.rotate_cmbx.addItem("Follow curve")
+        self.rotate_cmbx.addItem("Fixed")
+        self.rotate_cmbx.addItem("Random")
         self.rotate_layout.addWidget(self.rotate_cmbx)
+
+        self.rotate_input_layout = QtWidgets.QHBoxLayout()
+        self.x_lbl = QtWidgets.QLabel("X")
+        self.x_dspnbx = QtWidgets.QDoubleSpinBox()
+        self.y_lbl = QtWidgets.QLabel("Y")
+        self.y_dspnbx = QtWidgets.QDoubleSpinBox()
+        self.z_lbl = QtWidgets.QLabel("Z")
+        self.z_dspnbx = QtWidgets.QDoubleSpinBox()
+        self.rotate_input_layout.addWidget(self.x_lbl)
+        self.rotate_input_layout.addWidget(self.x_dspnbx)
+        self.rotate_input_layout.addWidget(self.y_lbl)
+        self.rotate_input_layout.addWidget(self.y_dspnbx)
+        self.rotate_input_layout.addWidget(self.z_lbl)
+        self.rotate_input_layout.addWidget(self.z_dspnbx)
 
         self.copy_num_layout = QtWidgets.QHBoxLayout()
         self.copy_num_chkbx = QtWidgets.QCheckBox("# of copies:")
@@ -130,6 +178,7 @@ class Copy_Win(QtWidgets.QDialog):
         self.main_layout.addLayout(self.curve_layout)
         self.main_layout.addLayout(self.dup_inst_layout)
         self.main_layout.addLayout(self.rotate_layout)
+        self.main_layout.addLayout(self.rotate_input_layout)
         self.main_layout.addLayout(self.copy_num_layout)
         self.main_layout.addLayout(self.spacing_layout)
         self.main_layout.addWidget(self.copy_btn)
@@ -142,6 +191,17 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy_num_chkbx.checkStateChanged.connect(self._on_copy_checked)
         self.spacing_chkbx.checkStateChanged.connect(self._on_spacing_checked)
         # ^ if this doesn't work, look into using a QButtonGroup.
+        self.rotate_cmbx.currentTextChanged.connect(self._rotate_cmbx_changed)
+
+    def _rotate_cmbx_changed(self):
+        if self.rotate_cmbx.currentText == "Fixed":
+            self.x_dspnbx.setEnabled(True)
+            self.y_dspnbx.setEnabled(True)
+            self.z_dspnbx.setEnabled(True)
+        else:
+            self.x_dspnbx.setEnabled(False)
+            self.y_dspnbx.setEnabled(False)
+            self.z_dspnbx.setEnabled(False)
 
     def _on_copy_checked(self):
         if self.copy_num_chkbx.isChecked():
@@ -169,11 +229,16 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy.curve_name = self.curve_input.text()
         self.copy.will_instance = self._duplicate_or_instance()
         self.copy.copy_num = self.copy_num_spnbx.value()
+        self.copy.rotation = self.rotate_cmbx.currentText()
+        self.copy.use_copy_num = self.copy_num_chkbx.isChecked()
+        self.copy.spacing = self.spacing_dspnbx.value()
+        self.copy.user_x = self.x_dspnbx.value()
+        self.copy.user_y = self.y_dspnbx.value()
+        self.copy.user_z = self.z_dspnbx.value()
         self.copy.copy_to_curve()
 
 
-
-### notes from class 4/20/2026:
+# notes from class 4/20/2026:
 # pointOnCurve - returns info for a point on a curve
 # can be used to find points halfway through (or other fractions) through curve
 # pointOnCurve -pr 0.5 -p curve1;
