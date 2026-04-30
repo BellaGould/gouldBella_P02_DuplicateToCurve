@@ -17,6 +17,8 @@ class Copy_To_Curve():
     use_copy_num = False
     spacing = 15.0
 
+    # now we need to figure out the rotation.
+
     def copy_to_curve(self):
         if self.use_copy_num is False:
             self.copy_num = self._calculate_copy_num()
