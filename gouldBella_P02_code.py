@@ -14,9 +14,12 @@ class Copy_To_Curve():
     mesh_name = "pSphere1"
     will_instance = False
     copy_num = 3
+    use_copy_num = False
     spacing = 15.0
 
     def copy_to_curve(self):
+        if self.use_copy_num is False:
+            self.copy_num = self._calculate_copy_num()
         if self.will_instance is True:
             self.instance_to_curve()
         else:
@@ -31,7 +34,7 @@ class Copy_To_Curve():
             cmds.rotate()
         
     def duplicate_to_curve(self):
-        for duplicate in range(1, self.copy_num+1):
+        for duplicate in range(1, int(self.copy_num)+1):
             new_mesh = cmds.duplicate(self.mesh_name)[0]
             pos = self.get_curve_point(duplicate)
             cmds.select(new_mesh)
@@ -42,25 +45,24 @@ class Copy_To_Curve():
         return curve_divider
 
     def get_curve_point(self, duplicate):
-        curve_divider = self.calculate_curve_divider(self.copy_num)
+        curve_divider = self.calculate_curve_divider()
         point_location = cmds.pointOnCurve(self.curve_name,
                                            parameter=(curve_divider*duplicate),
                                            position=True,
                                            turnOnPercentage=True)
         return point_location
-    
+
     def freeze_transforms(self, new_mesh):
         cmds.makeIdentity(new_mesh, apply=True, translate=True, rotate=True,
                           scale=True, normal=False, preserveNormals=True)
-        
+
     # calculate number of copies from curve length and spacing:
     # use the arcLen cmd to get length of curve
     # allow user to input desired spacing
-    # update copy number box when spacing changed and vice versa#
 
-    def _calculate_copy_num(self, spacing_dspnbx_value):
+    def _calculate_copy_num(self):
         curve_length = cmds.arclen(self.curve_name)
-        copy_num = curve_length//spacing_dspnbx_value
+        copy_num = curve_length//self.spacing
         return copy_num
 
 
@@ -145,6 +147,7 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy_btn.clicked.connect(self.copy_to_curve)
         self.copy_num_chkbx.checkStateChanged.connect(self._on_copy_checked)
         self.spacing_chkbx.checkStateChanged.connect(self._on_spacing_checked)
+        # ^ if this doesn't work, look into using a QButtonGroup.
 
     def _on_copy_checked(self):
         if self.copy_num_chkbx.isChecked():
@@ -177,9 +180,6 @@ class Copy_Win(QtWidgets.QDialog):
 
 
 ### notes from class 4/20/2026:
-# look at Maya docs curve commands for inspo.
-# Maya API is a plugin, so possible but not optimal.
-# Return to this^ solution if you can't figure out anything else.
 # pointOnCurve - returns info for a point on a curve
 # can be used to find points halfway through (or other fractions) through curve
 # pointOnCurve -pr 0.5 -p curve1;
@@ -192,12 +192,14 @@ class Copy_Win(QtWidgets.QDialog):
 # you have to separate it out with commas, like
 # pos = [x, y, z]
 # cmds.move(pos[0], pos[1], pos[2])
-# also, the maya docs have both mel and python versions?? Check top right corner??
 # thank you Professor Lim!!!!!!!###
 
 # import gouldBella_P02_code as project2
 # import importlib
 # importlib.reload(project2)
+
+# copy = project2.Copy_To_Curve()
+# copy.copy_to_curve(curve_name="curve1", mesh_name="pSphere1")
 
 # win = project2.Copy_Win()
 # win.show()
