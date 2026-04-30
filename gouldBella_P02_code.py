@@ -14,6 +14,7 @@ class Copy_To_Curve():
     mesh_name = "pSphere1"
     will_instance = False
     copy_num = 3
+    spacing = 15.0
 
     def copy_to_curve(self):
         if self.will_instance is True:
@@ -27,7 +28,7 @@ class Copy_To_Curve():
             pos = self.get_curve_point(instance)
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
-            self.freeze_transforms(new_mesh)
+            cmds.rotate()
         
     def duplicate_to_curve(self):
         for duplicate in range(1, self.copy_num+1):
@@ -36,20 +37,33 @@ class Copy_To_Curve():
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
 
-    def calculate_curve_divider(self):
-        curve_divider = 1.0/(self.copy_num+1)
+    def calculate_curve_divider(self, copy_num):
+        # We could access self.copy_num from the class info, but putting it this way allows
+        # it to work with the GUI calculations later.
+        curve_divider = 1.0/(float(copy_num)+1.0)
         return curve_divider
 
     def get_curve_point(self, duplicate):
-        curve_divider = self.calculate_curve_divider()
+        curve_divider = self.calculate_curve_divider(self.copy_num)
         point_location = cmds.pointOnCurve(self.curve_name,
                                            parameter=(curve_divider*duplicate),
-                                           position=True)
+                                           position=True,
+                                           turnOnPercentage=True)
         return point_location
     
     def freeze_transforms(self, new_mesh):
         cmds.makeIdentity(new_mesh, apply=True, translate=True, rotate=True,
                           scale=True, normal=False, preserveNormals=True)
+        
+    # calculate number of copies from curve length and spacing:
+    # use the arcLen cmd to get length of curve
+    # allow user to input desired spacing
+    # update copy number box when spacing changed and vice versa#
+
+    def _calculate_copy_num(self, spacing_dspnbx_value):
+        curve_length = cmds.arclen(self.curve_name)
+        copy_num = curve_length//spacing_dspnbx_value
+        return copy_num
 
 
 class Copy_Win(QtWidgets.QDialog):
@@ -62,6 +76,9 @@ class Copy_Win(QtWidgets.QDialog):
         self._define_widgets()
         self._layout_ui()
         self._connect_signals()
+
+        # you may need to just use a checkbox to toggle between copies and spacing and disable the non-used box.
+        # ^ Professor Lim says this is smarter
 
     def _define_widgets(self):
         self.mesh_layout = QtWidgets.QHBoxLayout()
@@ -86,12 +103,28 @@ class Copy_Win(QtWidgets.QDialog):
         self.dup_inst_cmbx.addItem("Instance")
         self.dup_inst_layout.addWidget(self.dup_inst_cmbx)
 
+        self.rotate_layout = QtWidgets.QHBoxLayout()
+        self.rotate_lbl = QtWidgets.QLabel("Rotation settings:")
+        self.rotate_layout.addWidget(self.rotate_lbl)
+        self.rotate_cmbx = QtWidgets.QComboBox()
+        self.rotate_cmbx.addItem("Do not change")
+        self.rotate_cmbx.addItem("Follow curve")
+        self.rotate_layout.addWidget(self.rotate_cmbx)
+
         self.copy_num_layout = QtWidgets.QHBoxLayout()
-        self.copy_num_lbl = QtWidgets.QLabel("# of copies:")
-        self.copy_num_layout.addWidget(self.copy_num_lbl)
+        self.copy_num_chkbx = QtWidgets.QCheckBox("# of copies:")
+        self.copy_num_layout.addWidget(self.copy_num_chkbx)
         self.copy_num_spnbx = QtWidgets.QSpinBox()
         self.copy_num_spnbx.setMinimum(1)
         self.copy_num_layout.addWidget(self.copy_num_spnbx)
+
+        self.spacing_layout = QtWidgets.QHBoxLayout()
+        self.spacing_chkbx = QtWidgets.QCheckBox("Copy spacing:")
+        self.spacing_layout.addWidget(self.spacing_chkbx)
+        self.spacing_dspnbx = QtWidgets.QDoubleSpinBox()
+        self.spacing_dspnbx.setMinimum(0.0)
+        self.spacing_dspnbx.setDecimals(3)
+        self.spacing_layout.addWidget(self.spacing_dspnbx)
         
         self.copy_btn = QtWidgets.QPushButton("Copy to curve")
         self.cancel_btn = QtWidgets.QPushButton("Cancel")
@@ -101,9 +134,12 @@ class Copy_Win(QtWidgets.QDialog):
         self.main_layout.addLayout(self.mesh_layout)
         self.main_layout.addLayout(self.curve_layout)
         self.main_layout.addLayout(self.dup_inst_layout)
+        self.main_layout.addLayout(self.rotate_layout)
         self.main_layout.addLayout(self.copy_num_layout)
+        self.main_layout.addLayout(self.spacing_layout)
         self.main_layout.addWidget(self.copy_btn)
         self.main_layout.addWidget(self.cancel_btn)
+        self.setLayout(self.main_layout)
 
     def _connect_signals(self):
         self.cancel_btn.clicked.connect(self.close)
@@ -144,3 +180,10 @@ class Copy_Win(QtWidgets.QDialog):
 # cmds.move(pos[0], pos[1], pos[2])
 # also, the maya docs have both mel and python versions?? Check top right corner??
 # thank you Professor Lim!!!!!!!###
+
+# import gouldBella_P02_code as project2
+# import importlib
+# importlib.reload(project2)
+
+# win = project2.Copy_Win()
+# win.show()
