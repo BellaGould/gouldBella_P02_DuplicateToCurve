@@ -37,10 +37,8 @@ class Copy_To_Curve():
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
 
-    def calculate_curve_divider(self, copy_num):
-        # We could access self.copy_num from the class info, but putting it this way allows
-        # it to work with the GUI calculations later.
-        curve_divider = 1.0/(float(copy_num)+1.0)
+    def calculate_curve_divider(self):
+        curve_divider = 1.0/(float(self.copy_num)+1.0)
         return curve_divider
 
     def get_curve_point(self, duplicate):
@@ -77,7 +75,8 @@ class Copy_Win(QtWidgets.QDialog):
         self._layout_ui()
         self._connect_signals()
 
-        # you may need to just use a checkbox to toggle between copies and spacing and disable the non-used box.
+        # you may need to just use a checkbox to toggle between
+        # copies and spacing and disable the non-used box.
         # ^ Professor Lim says this is smarter
 
     def _define_widgets(self):
@@ -144,7 +143,22 @@ class Copy_Win(QtWidgets.QDialog):
     def _connect_signals(self):
         self.cancel_btn.clicked.connect(self.close)
         self.copy_btn.clicked.connect(self.copy_to_curve)
-        # connect all other values with their widgets
+        self.copy_num_chkbx.checkStateChanged.connect(self._on_copy_checked)
+        self.spacing_chkbx.checkStateChanged.connect(self._on_spacing_checked)
+
+    def _on_copy_checked(self):
+        if self.copy_num_chkbx.isChecked():
+            self.copy_num_spnbx.setEnabled(True)
+            self.spacing_chkbx.setChecked(False)
+        else:
+            self.copy_num_spnbx.setEnabled(False)
+
+    def _on_spacing_checked(self):
+        if self.spacing_chkbx.isChecked():
+            self.spacing_dspnbx.setEnabled(True)
+            self.copy_num_chkbx.setChecked(False)
+        else:
+            self.spacing_dspnbx.setEnabled(False)
 
     def _duplicate_or_instance(self):
         text = self.dup_inst_cmbx.currentText()
