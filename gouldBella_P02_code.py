@@ -32,7 +32,7 @@ class Copy_To_Curve():
             cmds.select(new_mesh)
             cmds.move(pos[0], pos[1], pos[2])
             cmds.rotate()
-        
+
     def duplicate_to_curve(self):
         for duplicate in range(1, int(self.copy_num)+1):
             new_mesh = cmds.duplicate(self.mesh_name)[0]
@@ -56,10 +56,6 @@ class Copy_To_Curve():
         cmds.makeIdentity(new_mesh, apply=True, translate=True, rotate=True,
                           scale=True, normal=False, preserveNormals=True)
 
-    # calculate number of copies from curve length and spacing:
-    # use the arcLen cmd to get length of curve
-    # allow user to input desired spacing
-
     def _calculate_copy_num(self):
         curve_length = cmds.arclen(self.curve_name)
         copy_num = curve_length//self.spacing
@@ -76,10 +72,6 @@ class Copy_Win(QtWidgets.QDialog):
         self._define_widgets()
         self._layout_ui()
         self._connect_signals()
-
-        # you may need to just use a checkbox to toggle between
-        # copies and spacing and disable the non-used box.
-        # ^ Professor Lim says this is smarter
 
     def _define_widgets(self):
         self.mesh_layout = QtWidgets.QHBoxLayout()
@@ -126,7 +118,7 @@ class Copy_Win(QtWidgets.QDialog):
         self.spacing_dspnbx.setMinimum(0.0)
         self.spacing_dspnbx.setDecimals(3)
         self.spacing_layout.addWidget(self.spacing_dspnbx)
-        
+
         self.copy_btn = QtWidgets.QPushButton("Copy to curve")
         self.cancel_btn = QtWidgets.QPushButton("Cancel")
 
