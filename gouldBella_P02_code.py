@@ -23,8 +23,6 @@ class Copy_To_Curve():
     user_y = 90.0
     user_z = 80.0
 
-    # now we need to figure out the rotation.
-
     def copy_to_curve(self):
         if self.use_copy_num is False:
             self.copy_num = self._calculate_copy_num()
@@ -177,7 +175,6 @@ class Copy_Win(QtWidgets.QDialog):
         self.spacing_dspnbx.setDecimals(3)
         self.spacing_dspnbx.setEnabled(False)
         self.spacing_layout.addWidget(self.spacing_dspnbx)
-        # ^ add random spacing option! Combobox for options, rndm function for random spacing
 
         self.copy_btn = QtWidgets.QPushButton("Copy to curve")
         self.cancel_btn = QtWidgets.QPushButton("Cancel")
@@ -250,29 +247,3 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy.user_y = self.y_dspnbx.value()
         self.copy.user_z = self.z_dspnbx.value()
         self.copy.copy_to_curve()
-
-
-# notes from class 4/20/2026:
-# pointOnCurve - returns info for a point on a curve
-# can be used to find points halfway through (or other fractions) through curve
-# pointOnCurve -pr 0.5 -p curve1;
-# ^returns the xyz of a point halfway thru the curve.
-# start of curve is 0, end of curve is 1.
-# use turnOnPercentage=True to make sure positioning works.
-# can also query the length of a curve if needed.
-# arcLengthDimension or arclen
-# reminder: for cmds.move, you cant just put entire [x, y, z] in there
-# you have to separate it out with commas, like
-# pos = [x, y, z]
-# cmds.move(pos[0], pos[1], pos[2])
-# thank you Professor Lim!!!!!!!###
-
-# import gouldBella_P02_code as project2
-# import importlib
-# importlib.reload(project2)
-
-# copy = project2.Copy_To_Curve()
-# copy.copy_to_curve(curve_name="curve1", mesh_name="pSphere1")
-
-# win = project2.Copy_Win()
-# win.show()
