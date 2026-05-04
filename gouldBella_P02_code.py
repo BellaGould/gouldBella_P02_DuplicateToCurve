@@ -17,6 +17,7 @@ class Copy_To_Curve():
     copy_num = 3
     use_copy_num = False
     spacing = 15.0
+    is_spacing_random = False
     rotation = "Fixed"
     user_x = 90.0
     user_y = 90.0
@@ -41,7 +42,7 @@ class Copy_To_Curve():
             if self.rotation == "Unchanged":
                 pass
             else:
-                self.rotate_copy(instance)
+                self.rotate_copy()
 
     def duplicate_to_curve(self):
         for duplicate in range(1, int(self.copy_num)+1):
@@ -52,12 +53,10 @@ class Copy_To_Curve():
             if self.rotation == "Unchanged":
                 pass
             else:
-                self.rotate_copy(duplicate)
+                self.rotate_copy()
 
-    def rotate_copy(self, copy):
-        if self.rotation == "Follow Curve":
-            rotate_vector = self.get_point_rotation(copy)
-        elif self.rotation == "Fixed":
+    def rotate_copy(self):
+        if self.rotation == "Fixed":
             rotate_vector = [self.user_x, self.user_y, self.user_z]
         else:
             x = float(random.randrange(0, 361))
@@ -71,7 +70,11 @@ class Copy_To_Curve():
         return curve_divider
 
     def get_curve_point(self, copy):
-        curve_divider = self.calculate_curve_divider()
+        if self.is_spacing_random is False:
+            curve_divider = self.calculate_curve_divider()
+        else:
+            curve_divider = random.random()
+            copy = 1
         point_location = cmds.pointOnCurve(self.curve_name,
                                            parameter=(curve_divider*copy),
                                            position=True,
@@ -135,7 +138,6 @@ class Copy_Win(QtWidgets.QDialog):
         self.rotate_layout.addWidget(self.rotate_lbl)
         self.rotate_cmbx = QtWidgets.QComboBox()
         self.rotate_cmbx.addItem("Unchanged")
-        self.rotate_cmbx.addItem("Follow curve")
         self.rotate_cmbx.addItem("Fixed")
         self.rotate_cmbx.addItem("Random")
         self.rotate_layout.addWidget(self.rotate_cmbx)
@@ -147,6 +149,9 @@ class Copy_Win(QtWidgets.QDialog):
         self.y_dspnbx = QtWidgets.QDoubleSpinBox()
         self.z_lbl = QtWidgets.QLabel("Z")
         self.z_dspnbx = QtWidgets.QDoubleSpinBox()
+        self.x_dspnbx.setEnabled(False)
+        self.y_dspnbx.setEnabled(False)
+        self.z_dspnbx.setEnabled(False)
         self.rotate_input_layout.addWidget(self.x_lbl)
         self.rotate_input_layout.addWidget(self.x_dspnbx)
         self.rotate_input_layout.addWidget(self.y_lbl)
@@ -159,7 +164,10 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy_num_layout.addWidget(self.copy_num_chkbx)
         self.copy_num_spnbx = QtWidgets.QSpinBox()
         self.copy_num_spnbx.setMinimum(1)
+        self.copy_num_spnbx.setEnabled(False)
         self.copy_num_layout.addWidget(self.copy_num_spnbx)
+        self.spacing_rndm_chkbx = QtWidgets.QCheckBox("Random Spacing?")
+        self.spacing_rndm_chkbx.setEnabled(False)
 
         self.spacing_layout = QtWidgets.QHBoxLayout()
         self.spacing_chkbx = QtWidgets.QCheckBox("Copy spacing:")
@@ -167,7 +175,9 @@ class Copy_Win(QtWidgets.QDialog):
         self.spacing_dspnbx = QtWidgets.QDoubleSpinBox()
         self.spacing_dspnbx.setMinimum(0.0)
         self.spacing_dspnbx.setDecimals(3)
+        self.spacing_dspnbx.setEnabled(False)
         self.spacing_layout.addWidget(self.spacing_dspnbx)
+        # ^ add random spacing option! Combobox for options, rndm function for random spacing
 
         self.copy_btn = QtWidgets.QPushButton("Copy to curve")
         self.cancel_btn = QtWidgets.QPushButton("Cancel")
@@ -180,6 +190,7 @@ class Copy_Win(QtWidgets.QDialog):
         self.main_layout.addLayout(self.rotate_layout)
         self.main_layout.addLayout(self.rotate_input_layout)
         self.main_layout.addLayout(self.copy_num_layout)
+        self.main_layout.addWidget(self.spacing_rndm_chkbx)
         self.main_layout.addLayout(self.spacing_layout)
         self.main_layout.addWidget(self.copy_btn)
         self.main_layout.addWidget(self.cancel_btn)
@@ -188,13 +199,12 @@ class Copy_Win(QtWidgets.QDialog):
     def _connect_signals(self):
         self.cancel_btn.clicked.connect(self.close)
         self.copy_btn.clicked.connect(self.copy_to_curve)
-        self.copy_num_chkbx.checkStateChanged.connect(self._on_copy_checked)
-        self.spacing_chkbx.checkStateChanged.connect(self._on_spacing_checked)
-        # ^ if this doesn't work, look into using a QButtonGroup.
-        self.rotate_cmbx.currentTextChanged.connect(self._rotate_cmbx_changed)
+        self.copy_num_chkbx.stateChanged.connect(self._on_copy_checked)
+        self.spacing_chkbx.stateChanged.connect(self._on_spacing_checked)
+        self.rotate_cmbx.currentIndexChanged.connect(self._rotate_cmbx_changed)
 
     def _rotate_cmbx_changed(self):
-        if self.rotate_cmbx.currentText == "Fixed":
+        if self.rotate_cmbx.currentIndex() == 1:
             self.x_dspnbx.setEnabled(True)
             self.y_dspnbx.setEnabled(True)
             self.z_dspnbx.setEnabled(True)
@@ -207,19 +217,22 @@ class Copy_Win(QtWidgets.QDialog):
         if self.copy_num_chkbx.isChecked():
             self.copy_num_spnbx.setEnabled(True)
             self.spacing_chkbx.setChecked(False)
+            self.spacing_rndm_chkbx.setEnabled(True)
         else:
             self.copy_num_spnbx.setEnabled(False)
 
     def _on_spacing_checked(self):
         if self.spacing_chkbx.isChecked():
             self.spacing_dspnbx.setEnabled(True)
+            self.spacing_rndm_chkbx.setEnabled(False)
             self.copy_num_chkbx.setChecked(False)
+            self.spacing_rndm_chkbx.setChecked(False)
         else:
             self.spacing_dspnbx.setEnabled(False)
 
     def _duplicate_or_instance(self):
-        text = self.dup_inst_cmbx.currentText()
-        if text == "Duplicate":
+        text = self.dup_inst_cmbx.currentIndex()
+        if text == 0:
             return False
         else:
             return True
@@ -232,6 +245,7 @@ class Copy_Win(QtWidgets.QDialog):
         self.copy.rotation = self.rotate_cmbx.currentText()
         self.copy.use_copy_num = self.copy_num_chkbx.isChecked()
         self.copy.spacing = self.spacing_dspnbx.value()
+        self.copy.is_spacing_random = self.spacing_rndm_chkbx.isChecked()
         self.copy.user_x = self.x_dspnbx.value()
         self.copy.user_y = self.y_dspnbx.value()
         self.copy.user_z = self.z_dspnbx.value()
