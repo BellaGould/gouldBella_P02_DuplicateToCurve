@@ -1,7 +1,9 @@
 # gouldBella_P02_DuplicateToCurve
 Final project for ANGM 3311.003 Spring 2026 semester.
 
-This project will allow users to duplicate a specified mesh along a curve created in Maya.
+GitHub link: https://github.com/BellaGould/gouldBella_P02_DuplicateToCurve
+
+This tool allows users to duplicate a specified mesh along the line of a specified curve in Maya.
 
 Parameters: mesh to duplicate, curve to follow, number of duplications, spacing of duplications (more later?)
 
